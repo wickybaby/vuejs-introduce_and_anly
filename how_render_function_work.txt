@@ -1,0 +1,22 @@
+i am interesting in how vuejs to let render function work, so this chapter. we find it out...
+
+every vuejs component, for example:
+
+<vtest :src="test">
+</vtest>
+
+it finally be transformed to browser HTML tag, so browser can recognize it. such as:
+
+it's origin:
+
+<div>
+	<div>
+		<span></span>
+	</div>
+</div>
+
+
+how vuejs to do this? we continue to find:
+
+
+

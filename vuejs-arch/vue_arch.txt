@@ -1,0 +1,37 @@
+此文档介绍vuejs的主体组成部分以及各个部分的主要功能
+
+vue作为组件或者对象，主要的数据成员为，以一个典型的例子为例：
+
+var app = new Vue({
+	el:'#test',
+	data: {
+		example:'',
+	},
+	props:[],
+	methods:{
+		
+	},
+	watch:{
+		example: function(oldValue, newValue){
+		}
+	},
+	computed:{
+		fullExample: function(){
+			return 'full' + this.example;
+		}
+	}
+})
+
+vue对象的初始化，如果参数比较齐全，那么就会有以下一些部分：
+
+1. data 	此字段为vue数据对象，在需要bind或者做其它操作的时候使用
+2. props 	一般为从父组件继承而来
+3. methods 	在事件绑定或者其它绑定的时候需要执行的callback函数
+4. watch  	侦听器，可以侦听需要知道变化的data数据
+5. computed 计算属性，属性值是通过其它成员计算而来的
+
+
+
+
+
+
