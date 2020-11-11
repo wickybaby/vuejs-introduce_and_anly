@@ -1,5 +1,11 @@
-my project is to introduce vuejs and anlyse code and arch for vuejs
+此工程主要是介绍vue框架的实现原理和机制，帮忙我们更好地使用vue框架和进行二次开发。
 
-plan:
+工程大体分为以下部分：
 
-1. vuejs top arch(some pictures)
+1. vue的整体架构
+	
+	vue的整体架构，当前主要介绍vue中的属性更新监听，vue的render函数以及vue解析template html的过程
+	
+2. vue的一些相关机制的实现原理和流程
+	
+	 vue是如何使用一些非常常见的设计模式的。比如observe模式，proxy模式。vue常见的一些机制和原理。
