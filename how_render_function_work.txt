@@ -18,5 +18,31 @@ it's origin:
 
 how vuejs to do this? we continue to find:
 
+let's see a common render function:
+
+(function anonymous(
+) {
+with(this){return _c('div',{staticClass:"container",attrs:{"id":"demo"}},[_m(0),_v(" "),_c('div',{staticStyle:{"padding":".75rem 1.25rem","font-weight":"bold"}},[_v("详细参数:")]),_v(" "),_c('div',{staticClass:"fixedCss"},[_c('div',{staticClass:"paramItem"},[_v("userAgent:   "+_s(browser))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("webdriver:   "+_s(webdriver))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("language:   "+_s(language))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("colorDepth:   "+_s(colorDepth))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("deviceMemory:   "+_s(deviceMemory))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("pixelRatio:   "+_s(pixelRatio))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("hardwareConcurrency:   "+_s(hardwareConcurrency))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("screenResolution:   "+_s(screenResolution))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("availableScreenResolution:   "+_s(availableScreenResolution))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("timezoneOffset:   "+_s(timezoneOffset))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("timezone:   "+_s(timezone))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("sessionStorage:   "+_s(sessionStorage))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("localStorage:   "+_s(localStorage))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("indexedDb:   "+_s(indexedDb))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("addBehavior:   "+_s(addBehavior))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("cpuClass:   "+_s(cpuClass))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("platform:   "+_s(platform))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("doNotTrack:   "+_s(doNotTrack))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("plugins:   "+_s(plugins))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("canvas:   "+_s(canvas))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("webgl:   "+_s(webgl))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("webglVendorAndRenderer:   "+_s(webglVendorAndRenderer))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("hasLiedLanguages:   "+_s(hasLiedLanguages))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("hasLiedResolution:   "+_s(hasLiedResolution))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("hasLiedOs:   "+_s(hasLiedOs))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("hasLiedBrowser:   "+_s(hasLiedBrowser))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("touchSupport:   "+_s(touchSupport))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("fonts:   "+_s(fonts))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("audio:   "+_s(audio))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("enumerateDevices:   "+_s(enumerateDevices))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("chrome?:   "+_s(chrome))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("vendor:   "+_s(vendor))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("productSub:   "+_s(productSub))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("evalLength:   "+_s(evalLength))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("errorFF:   "+_s(errorFF))]),_v(" "),_c('div',{staticClass:"paramItem"},[_v("canvasPro:   "+_s(canvasPro))])]),_v(" "),_l((fingers),function(item){return _c('div',{staticStyle:{"margin-bottom":"10px"}},[_c('finger-tag',{attrs:{"browser":browser,"screen":screen,"canvas":canvas,"visitorid":item.fingerprint,"name":item.name,"history":item.history}})],1)})],2)}
+})
+
+
+very smart operation, this anonymous render function return a {vnode{vnode, vnode}} tree like vnode, returned vnode is root node. when render complete, this render function can generate a tree structure like this:
+
+        vm._vnode=>vnode
+				    |
+				vnode   vnode   (children)
+				|          |
+			vnode vnode   vnode vnode   (children)
+						
+when first render, vm object has no prev node exists, so create new html element tag, and add vnodes to root parent. when mounted complete, browser will let new node display, and vue component make effect. let's explain it in steps.
+
+
+1) first, vue read component's html tag, and parse it to a render function.
+2) second, executes this render function, and get vnode tree like structure.
+3) third, mount operation do mount on this vnode, how it mount?  executes vue.prototype._update function, the function traverse vnode and do generate html tag and append these tags to web page
+
+
+parseHTML ==> generate function string ==> createFunction(functionStr) ==> installed to vm's render function(vm.render = createFunction(str))
+
 
 
