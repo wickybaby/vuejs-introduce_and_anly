@@ -76,3 +76,29 @@ new Watcher(){
 7） 如果message只是绑定到了组件某个tag上，那么patch的时候在对vnodes进行比较的过程中，会直接更新为新值
 
 一个完整的绑定属性更新流程即可完成。
+
+
+
+vue的计算属性和watcher都是通过上面所说的observe模式来实现的。
+
+1）计算属性：
+
+computed:{
+	fulla: function(){
+		return a + b
+	}
+}
+
+计算属性的所有key都会 
+new Watcher(
+        vm,
+        getter || noop,
+        noop,
+        computedWatcherOptions
+      )
+此处的getter就是用户定义的fulla这个函数，当计算属性发生改变的时候，会及时通知监听者调用回调函数
+
+2）watcher 侦听属性
+
+new Watcher(vm, expOrFn, cb, options)
+通过new Watcher针对每个需要watch的属性生成一个，在observe通知的时候，调用watcher的回调函数。
