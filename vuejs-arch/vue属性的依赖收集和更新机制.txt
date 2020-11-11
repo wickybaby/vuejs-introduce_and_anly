@@ -1,0 +1,78 @@
+在日常使用的vue的过程中，可以很容易地知道，每当vue的某个属性进行了修改，对属性进行绑定的地方都会迅速更新为最新的值。这是vue框架提供的最基础的功能，
+但是vue框架是通过什么方法或者机制来实现这个过程的呢？对此，我这里对代码进行了一些分析，给出我这边的理解。
+
+在设计模式中很容易能知道有一个设计模式叫做observe模式，这在需要管理依赖或者监控依赖的时候很方便和容易。vue框架同样也是使用的observer设计模式。
+observe模式能够很好地监控属性变化。关于observe模式如何进行实现和设计可以自行搜索。
+
+vue组件在初始化的时候，如果存在data{}数据域，会进行此数据域的初始化监听，调用函数observe(data, true /* asRootData */)
+
+如果此data{}对象之前没有observer过，则会重新new Observe(data{})出来，对此data进行属性监听绑定。new Observe(data{})是如何属性监听绑定的呢？
+
+Observe的构造函数如下：
+constructor (value: any) {
+    this.value = value
+    this.dep = new Dep()
+    this.vmCount = 0
+    def(value, '__ob__', this)
+    if (Array.isArray(value)) {
+      if (hasProto) {
+        protoAugment(value, arrayMethods)
+      } else {
+        copyAugment(value, arrayMethods, arrayKeys)
+      }
+      this.observeArray(value)
+    } else {
+      this.walk(value)
+    }
+  }
+
+ walk (obj: Object) {
+    const keys = Object.keys(obj)
+    for (let i = 0; i < keys.length; i++) {
+      defineReactive(obj, keys[i])
+    }
+  }
+  
+通过以上代码可以知道，vue会针对data对象中的所有属性字段重新定义一个reactive的属性和相关操作，代码如下：
+
+defineReactive (){
+	Object.defineProperty(obj, key, setter, getter);
+}
+
+javascript原生的Object对象提供了使用函数定义对象属性的方法defineProperty，在属性进行语言层面的设置（比如赋值=）或者获取（比如赋值）会调用defineProperty函数
+定义属性时候的setter或者getter函数，这取决于到底是设置还是获取。vue框架就是利用这个语言特性对对象的属性进行observe的。
+
+
+data{
+	__ob__(上文中new出来的observe)   
+}
+
+的属性在observe之后会多出一个__ob__的字段，此字段存储的就是具体new出来的observer。observe在walk data的每一个属性定义reactive属性的时候，会针对每一个属性生成一个depend对象。
+在需要监听的时候，会new Watcher()把watcher添加到depend对象的subscriber中（订阅者）中。一旦某个值改变了，就会出发setter函数中的dep.notify()，通过订阅者，属性发生改变，调用
+订阅者注册的属性改变监听函数。下面我详细解释一下：
+
+data{
+	__ob__(上文中new出来的observe)   
+	属性a      -------------> 对应一个new depend()
+	属性b      -------------> 对应一个new depend()
+	属性c      -------------> 对应一个new depend()
+}
+
+new Watcher(){
+	收集上面的3个depend对象，并且将自己注册给depend对象。
+}
+
+
+这里我们可以通过observe原理介绍一下，当在页面中针对某个var app = new Vue()的时候，如果我们设置app的某个属性字段，整个过程发生了哪些事情来理解整个操作流程和机制。
+
+比如我在js代码中设置了app.message = 'hello'; 按照过程我依次进行说明：
+
+1） 语言层面的对象属性设置发生了
+2） 由于使用了defineProperty进行属性定义，浏览器js语言层面会调用Object.defineProperty(obj, key, setter, getter);定义的时候的setter函数
+3） setter函数的在重新设置了新值之后，会调用depeng.notify()函数
+4） depend.notify函数会通知watcher，app.message的值进行了更新，需要调用watcher注册的回调函数
+5） 在vue的组件中，watcher注册的回调函数一般为updateComponent
+6） 组件更新函数会重新render组件，然后newVnode和prevVnode进行patch操作
+7） 如果message只是绑定到了组件某个tag上，那么patch的时候在对vnodes进行比较的过程中，会直接更新为新值
+
+一个完整的绑定属性更新流程即可完成。
